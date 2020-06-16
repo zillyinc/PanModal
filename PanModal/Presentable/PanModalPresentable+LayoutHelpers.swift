@@ -27,11 +27,7 @@ extension PanModalPresentable where Self: UIViewController {
      Gives us the safe area inset from the top.
      */
     var topLayoutOffset: CGFloat {
-
-        guard let rootVC = rootViewController
-            else { return 0}
-
-        if #available(iOS 11.0, *) { return rootVC.view.safeAreaInsets.top } else { return rootVC.topLayoutGuide.length }
+        return windowSafeAreaInsets.top
     }
 
     /**
@@ -39,11 +35,7 @@ extension PanModalPresentable where Self: UIViewController {
      Gives us the safe area inset from the bottom.
      */
     var bottomLayoutOffset: CGFloat {
-
-       guard let rootVC = rootViewController
-            else { return 0}
-
-        if #available(iOS 11.0, *) { return rootVC.view.safeAreaInsets.bottom } else { return rootVC.bottomLayoutGuide.length }
+        return windowSafeAreaInsets.bottom
     }
 
     /**
@@ -104,7 +96,7 @@ extension PanModalPresentable where Self: UIViewController {
             let targetSize = CGSize(width: (presentedVC?.containerView?.bounds ?? UIScreen.main.bounds).width,
                                     height: UIView.layoutFittingCompressedSize.height)
             let intrinsicHeight = view.systemLayoutSizeFitting(targetSize).height
-            return bottomYPos - (intrinsicHeight + bottomLayoutOffset)
+            return bottomYPos - (intrinsicHeight + bottomInset)
         }
     }
 
@@ -117,4 +109,13 @@ extension PanModalPresentable where Self: UIViewController {
     }
 
 }
+
+private let windowSafeAreaInsets: UIEdgeInsets = {
+    let window = UIWindow(frame: UIScreen.main.bounds) // Only executed once, so it's fine
+    if #available(iOS 11.0, *) {
+        return window.safeAreaInsets
+    } else {
+        return .zero
+    }
+}()
 #endif
