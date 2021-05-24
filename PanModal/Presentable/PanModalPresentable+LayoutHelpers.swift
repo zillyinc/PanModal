@@ -27,7 +27,11 @@ extension PanModalPresentable where Self: UIViewController {
      Gives us the safe area inset from the top.
      */
     var topLayoutOffset: CGFloat {
-        return windowSafeAreaInsets.top
+        if #available(iOS 11.0, *) {
+            return rootViewController?.view.safeAreaInsets.top ?? 0
+        } else {
+            return 0
+        }
     }
 
     /**
@@ -35,7 +39,11 @@ extension PanModalPresentable where Self: UIViewController {
      Gives us the safe area inset from the bottom.
      */
     var bottomLayoutOffset: CGFloat {
-        return windowSafeAreaInsets.bottom
+        if #available(iOS 11.0, *) {
+            return rootViewController?.view.safeAreaInsets.bottom ?? 0
+        } else {
+            return 0
+        }
     }
 
     /**
@@ -101,21 +109,11 @@ extension PanModalPresentable where Self: UIViewController {
     }
 
     private var rootViewController: UIViewController? {
-
-        guard let application = UIApplication.value(forKeyPath: #keyPath(UIApplication.shared)) as? UIApplication
-            else { return nil }
-
-        return application.keyWindow?.rootViewController
+        if #available(iOS 13.0, *) {
+            return (UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene)?.windows.first?.rootViewController ?? UIApplication.shared.keyWindow?.rootViewController
+        } else {
+            return UIApplication.shared.keyWindow?.rootViewController
+        }
     }
-
 }
-
-private let windowSafeAreaInsets: UIEdgeInsets = {
-    let window = UIWindow(frame: UIScreen.main.bounds) // Only executed once, so it's fine
-    if #available(iOS 11.0, *) {
-        return window.safeAreaInsets
-    } else {
-        return .zero
-    }
-}()
 #endif
